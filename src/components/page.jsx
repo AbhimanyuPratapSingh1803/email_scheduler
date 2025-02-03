@@ -150,7 +150,7 @@ export default function MailingPage() {
                     />
                 </div>
             </div>
-            {error ? <p className="font-medium text-red-500">{error}</p> : null}
+            {error ? <p className="font-medium text-center text-red-500">{error}</p> : null}
             <button onClick={handleSubmit} className="bg-blue-500 rounded-sm px-5 text-lg font-bold text-white p-2 mt-3">
                 Schedule
             </button>

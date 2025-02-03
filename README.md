@@ -1,3 +1,65 @@
+# Email Scheduler 📧
+
+A **Next.js** and **Node.js**-based email scheduling system using **Nodemailer**, and **Cron Jobs**. This project allows users to schedule emails dynamically and ensures they are sent at the correct time.
+
+---
+
+## 🚀 Features
+
+✅ **Schedule emails** for a future date & time  
+✅ **Supports multiple recipients**  
+✅ **Nodemailer** for email delivery  
+✅ **Node-Cron** for scheduling emails  
+
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js, React  
+- **Backend:** Node.js, Next.js API Routes  
+- **Scheduler:** Node-Cron  
+- **Email Services:** Nodemailer 
+
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the Repository  
+```sh
+git clone https://github.com/AbhimanyuPratapSingh1803/email_scheduler.git
+cd email_scheduler
+```
+### 2️⃣ Install Dependencies
+```sh
+npm install
+```
+
+### 3️⃣ Create a .env file
+```sh
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
+```
+
+### 4️⃣ Start the Server
+```sh
+npm run dev
+```
+
+### 📡 API Endpoints
+### 1️⃣ Schedule an Email
+### POST /api/schedule
+```sh
+{
+  "from": "your_email@gmail.com",
+  "recipients": ["user1@example.com", "user2@example.com"],
+  "subject": "Scheduled Email",
+  "message": "This email is scheduled!",
+  "scheduledTime": "2025-02-03T10:45:00Z"
+}
+```
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

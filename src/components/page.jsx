@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import CustomSelect from "./CustomSelect";
-import Recipient from "./recipient";
-import { GoPlus } from "react-icons/go";
 import { FaCalendarAlt } from "react-icons/fa";
 import CustomInput from "./CustomInput";
 import { toast } from "react-toastify";
@@ -16,6 +14,8 @@ export default function MailingPage() {
     const [emails, setEmails] = useState("");
     const [time, setTime] = useState("");
     const [error, setError] = useState("");
+    const [subject, setSubject] = useState("");
+    const [message, setMessage] = useState("");
     const calendarRef = useRef(null);
 
     useEffect(() => {
@@ -38,37 +38,53 @@ export default function MailingPage() {
     }, []);
 
     const handleSubmit = async () => {
-        const formData = new FormData();
-        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        let info = {};
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const checkMailerMail = regex.test(mailerEmail);
+        if(!checkMailerMail){
+            setError("Please enter a valid mailer email address");
+            console.log(mailerEmail);
+            return;
+        }
+        info.from = mailerEmail;
         const allEmails = emails.split(",").map((email) => email.trim());
         allEmails.map((email) => {
             if(!regex.test(email)){
                 setError("Please enter a valid recipient email address");
                 return;
-            } else {
-                formData.append("email", email);
             }
         });
-        formData.append("mailer", mailerEmail);
-        formData.append("time", time);
+        info.recipients = allEmails;
+        info.subject = subject;
+        info.message = message;
+        const Time = new Date(time);
+        info.scheduledTime = Time;
 
-        const response = await fetch("/api/mailing", {
-            method: "POST",
-            body: formData,
-        });
-        const data = await response.json();
-        if (data.ok) {
-            toast.success("Mails Scheduled Successfully");
-        } else {
-            toast.error("Error occured while scheduling mails.")
+        try {
+            const response = await fetch("/api/schedule", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(info),
+            });
+            const data = await response.json();
+            console.log(data);
+            if (data.success) {
+                console.log("ho gaya")
+                toast.success("Mails Scheduled Successfully");
+            } else {
+                toast.error("Error occured while scheduling mails.")
+            }
+        } catch (error) {
+            console.error(error);
         }
+        setError("");
     };
 
-    useEffect(() => console.log(time), [time]);
-
     return (
-        <div className="p-5 flex flex-col gap-5 items-center justify-center h-screen w-1/2">
-            <h1 className="text-3xl font-bold">Schedule a Mailing</h1>
+        <div className="p-5 flex flex-col gap-5 items-center justify-center min-h-screen w-full sm:w-1/2">
+            <h1 className="text-3xl font-bold">Mail Scheduler</h1>
 
             <CustomSelect
                 label="Mailers"
@@ -89,12 +105,30 @@ export default function MailingPage() {
 
             {selectedList?.name && (
                 <div className="flex flex-col gap-2 w-full items-start justify-start">
-                    <textarea onChange={(e) => setEmails(e.target.value)} className="textarea rounded-sm bg-white text-black w-full textarea-bordered border-slate-500" placeholder="Enter all the emails separated by comma."></textarea>
+                    <textarea onChange={(e) => setEmails(e.target.value)} className="textarea rounded-sm bg-white text-black w-full textarea-bordered border-slate-500" placeholder="Enter all the recipient emails separated by comma."></textarea>
                 </div>
             )}
 
+            {selectedList?.name && (
+                <label className="input bg-white w-full rounded-sm border-slate-500 input-bordered flex items-center gap-2">
+                <div className="label">
+                  <span className="label-text text-blue-500">Subject</span>
+                </div>
+                <input type="text" onChange={(e) => setSubject(e.target.value.trim())} placeholder="Type here" className="input input-bordered w-full max-w-xs" />
+              </label>
+            )}
+
+            {selectedList?.name && (
+                <label className="form-control w-full">
+                <div className="label">
+                  <span className="label-text text-blue-500">Message</span>
+                </div>
+                <textarea onChange={(e) => setMessage(e.target.value.trim())} className="textarea rounded-sm bg-white text-black w-full textarea-bordered border-slate-500" placeholder="Enter your message here.."></textarea>
+              </label>
+            )}
+
             <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm text-slate-600 pl-2">
+                <label className="text-sm text-blue-500 pl-2">
                     Schedule Time
                 </label>
                 <div className="relative w-full">
@@ -116,8 +150,8 @@ export default function MailingPage() {
                     />
                 </div>
             </div>
-
-            <button className="bg-blue-500 rounded-sm px-5 text-lg text-white p-2 mt-3">
+            {error ? <p className="font-medium text-red-500">{error}</p> : null}
+            <button onClick={handleSubmit} className="bg-blue-500 rounded-sm px-5 text-lg font-bold text-white p-2 mt-3">
                 Schedule
             </button>
         </div>

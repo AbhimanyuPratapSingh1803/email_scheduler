@@ -1,7 +1,5 @@
-import sendEmail  from "@/utils/sendMail.js";
+import sendEmail from "@/utils/sendMail.js";
 import cron from "node-cron";
-
-const scheduledJobs = {};
 
 export async function POST(req) {
     try {
@@ -37,33 +35,35 @@ export async function POST(req) {
 
         console.log("Cron Job Time (IST):", cronTime);
 
-        if (scheduledJobs[cronTime]) {
-            return Response.json(
-                { error: "Email already scheduled for this time" },
-                { status: 400 }
-            );
-        }
-
-        // Schedule the email in IST
-        const job = cron.schedule(cronTime, async () => {
-            try {
-                const sendingMail = await sendEmail(from, recipients, subject, message);
-                console.log("Email sent successfully", sendingMail);
-            } catch (error) {
-                console.error("Error sending email:", error);
+        const job = cron.schedule(
+            cronTime,
+            async () => {
+                console.log("me andar aa gaya")
+                try {
+                    const sendingMail = await sendEmail(
+                        from,
+                        recipients,
+                        subject,
+                        message
+                    );
+                    console.log("Email sent successfully", sendingMail);
+                    // return;
+                } catch (error) {
+                    console.error("Error sending email:", error);
+                }
+                console.log("me bhr aa gaya")
+            },
+            {
+                scheduled: true,
+                timezone: "Asia/Kolkata",
             }
-        },
-        {
-            scheduled: true,
-            timezone: "Asia/Kolkata",
-        });
+        );
+        console.log("me aur bhr aa gaya")
 
-        scheduledJobs[cronTime] = job;
-
-        return Response.json({
-            success: true,
-            message: `Email scheduled for ${scheduledTime} (IST)`,
-        });
+        return new Response(
+            JSON.stringify({ message: "Email scheduled successfully", success: true }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+        );
     } catch (error) {
         console.error("Error scheduling email:", error);
         return Response.json(

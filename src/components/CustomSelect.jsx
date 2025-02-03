@@ -18,7 +18,7 @@ export default function CustomSelect({label, options, list, setlist, mailers, se
         <div className="w-full">
             <label className="form-control text-black w-full">
                 <div className="label">
-                    <span className="label-text text-slate-600">
+                    <span className="label-text text-blue-500">
                         {label}
                     </span>
                 </div>
